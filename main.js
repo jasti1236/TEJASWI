@@ -1,60 +1,71 @@
-function getfile(file,callback){
-  var xhr = new XMLHttpRequest();
-  xhr.overrideMimeType("application/json");
-  xhr.open("GET",file,true);
-  xhr.onreadystatechange = function(){
-    if(xhr.readyState === 4 && xhr.status == "200"){
-      callback(xhr.responseText);
-    }
-  };
-  xhr.send(null);
+var request;
+var open;
+var result;
+var tx;
+var store;
+var indexedDB= window.indexedDB || window.webkitindexedDB || window.msindexedDB ||window.mozindexedDB;
+request=indexedDB.open("mydatabase",1);
+
+request.onerror=function(e){
+  console.log("error"+e);
 }
-getfile("data.json",function(text){
-  var data=JSON.parse(text);
-  console.log(data);
-  career(data.career);
- education(data.education);
- skills(data.skills)
-})
-
-var child2=document.querySelector(".childtwo")
-function career(careerInfo){
-  var careerHeading=document.createElement("h3");
-  child2.appendChild(careerHeading);
-careerHeading.textContent="Career objective"
-var careerHr=document.createElement("hr");
-child2.appendChild(careerHr);
-var ch=document.createElement("p");
-ch.textContent=careerInfo.info;
-child2.appendChild(ch);
+//onupgradeneeded
+request.onupgradeneeded=function(e){
+  result=e.target.result;
+  store=result.createObjectStore("resume",{keyPath:"name"});
 }
-
-function education(edu){
-  var eduHeading=document.createElement("h3");
-  eduHeading.textContent="Educational qualifications";
-  child2.appendChild(eduHeading);
-
-  var careerHr=document.createElement("hr");
-  child2.appendChild(careerHr);
-
-  var eduTable=document.createElement("table");
-  eduTable.border="1";
-  var tr1="<tr><td>degree</td><td>institute</td><td>Data</td></tr>";
-  eduTable.innerHTML=tr1;
-  //var tr2="";
-  for(var i=0;i<edu.length;i++){
-    tr1+="<tr><td>"+edu[i].degree+"</td><td>"+edu[i].institute+"</td><td>"+edu[i].Data+"</td></tr>";
-     eduTable.innerHTML=tr1;
-    }
-
-  child2.appendChild(eduTable);
-}
-function skills(skil){
-  var u1=document.createElement("u1");
-  child2.appendChild(u1);
-  for(var i=0;i<skil.length;i++){
-    var li=document.createElement("li");
-    li.textContent=skil[i].title+":"+skil[i].content;
-    u1.appendChild(li);
+//onsuccess
+request.onsuccess=function(e){
+  result=e.target.result;
+function getdata(callback){
+  tx=result.transaction("resume",IDBTransaction.READ_ONLY);
+  store=tx.objectStore("resume");
+  data=[];
+  tx.oncomplete=function(e){
+    callback(result);
+    console.log(result);
   }
+    var cursor=store.openCursor();
+
+    cursor.onerror=function(e){
+      console.log("error"+e);
+    }
+
+    cursor.onsuccess=function(e){
+      var m=e.target.result;
+      if(m){
+        data.push(m.value);
+        m.continue();
+      }
+    }
+  }
+  var parent=document.querySelector(".parent");
+  getdata(function(d){
+    console.log(d);
+    for(var i in data){
+      var child=document.createElement("div");
+      child.classList.add("child");
+      parent.appendChild(child);
+
+      var img=document.createElement("img");
+      img.src="1.jpg";
+      img.alt=data[i].name;
+      child.appendChild(img);
+
+      var name=document.createElement("h2");
+      name.textContent=data[i].name;
+      child.appendChild(name);
+
+
+      var email=document.createElement("h2");
+      email.textContent=data[i].email;
+      child.appendChild(email);
+
+      var button=document.createElement("a");
+      button.textContent="View Profile";
+      button.href="resume.html?name="+data[i].name;
+      child.appendChild(button);
+
+    }
+  });
 }

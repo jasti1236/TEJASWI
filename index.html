@@ -2,23 +2,38 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel="stylesheet" href="demo.css">
+    <title>Resume Building</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    <header>
+
+      <a href="form.html"><img src="pen.jpeg" alt="image" width=150px height=150px></a>
+    </header>
     <div class="parent">
-      <div class="childone">
-        <img src="icon2.jpg" alt="image">
-        <h1>tejaswi</h1>
-        <p>7663486</p>
-        <a href="mailto:mnop@gmail.com">
-          email@domain.com</a>
-      </div>
-      <div class="childtwo">
-      </div>
+
     </div>
-    <script type="text/javascript" src="main.js">
-    </script>
   </body>
 </html>
+<script type="text/javascript" src="main.js">
+
+</script>
+//service worker
+<script type="text/javascript">
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register("sw.js")
+    .then(function(register){
+      register.addEventListener('update found',function(){
+        var installingsw=register.installing;
+        console.log("service worker is installing",installingsw);
+      });
+    })
+    .catch(function(e){
+      console.log("Error"+e);
+    });
+  }
+  else{
+    console.log("browser is not supporting service worker");
+  }
+</script>
